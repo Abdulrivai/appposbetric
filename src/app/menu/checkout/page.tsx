@@ -333,6 +333,7 @@ export default function CheckoutPage() {
             setShowSuccess(true)
             setOrderResult(null)
           }}
+          onCancel={() => setOrderResult(null)}
         />
       )}
     </div>
