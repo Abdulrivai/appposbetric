@@ -14,7 +14,7 @@ async function generateQueueNumber(supabase: ReturnType<typeof createServiceRole
     .gte('created_at', today.toISOString())
 
   const seq = (count ?? 0) + 1
-  return `A-${String(seq).padStart(3, '0')}`
+  return String(seq)
 }
 
 export async function POST(request: NextRequest) {

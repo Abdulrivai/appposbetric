@@ -18,13 +18,13 @@ interface QRISModalProps {
 
 export function QRISModal({ open, orderId, orderCode, qrUrl, midtransOrderId, onSuccess }: QRISModalProps) {
   const [status, setStatus] = useState<'waiting' | 'success' | 'failed'>('waiting')
-  const [timeLeft, setTimeLeft] = useState(900)
+  const [timeLeft, setTimeLeft] = useState(600)
   const successRef = useRef(false)
 
   useEffect(() => {
     if (!open) {
       setStatus('waiting')
-      setTimeLeft(900)
+      setTimeLeft(600)
       successRef.current = false
       return
     }

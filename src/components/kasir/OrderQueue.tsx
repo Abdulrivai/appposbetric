@@ -12,7 +12,7 @@ interface StoreInfo { storeName: string; footerText: string; logoUrl: string }
 
 const TABS = [
   { value: 'active',          label: 'Aktif',       statuses: ['pending', 'waiting_payment', 'paid'] as OrderStatus[] },
-  { value: 'waiting_payment', label: 'Tunggu Bayar', statuses: ['waiting_payment'] as OrderStatus[] },
+  { value: 'waiting_payment', label: 'Tunggu Bayar', statuses: ['pending', 'waiting_payment'] as OrderStatus[] },
   { value: 'paid',            label: 'Dibayar',      statuses: ['paid'] as OrderStatus[] },
   { value: 'done',            label: 'Selesai',      statuses: ['done'] as OrderStatus[] },
   { value: 'all',             label: 'Semua',        statuses: undefined },
@@ -95,9 +95,9 @@ export function OrderQueue() {
 
   if (loading) {
     return (
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
         {Array.from({ length: 6 }).map((_, i) => (
-          <Skeleton key={i} className="h-64 rounded-lg" />
+          <Skeleton key={i} className="h-72 rounded-xl" />
         ))}
       </div>
     )
@@ -149,7 +149,7 @@ export function OrderQueue() {
           <p className="text-sm">Tidak ada order {currentTab.label.toLowerCase()}</p>
         </div>
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
           {filtered.map((order) => (
             <OrderCard key={order.id} order={order} onUpdate={() => fetchOrders(true)} storeName={store.storeName} footerText={store.footerText} logoUrl={store.logoUrl} />
           ))}

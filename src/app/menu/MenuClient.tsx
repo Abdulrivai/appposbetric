@@ -18,19 +18,19 @@ interface MenuClientProps {
 }
 
 const CATEGORIES = [
-  { id: 'Coffee',     label: '☕ Coffee' },
+  { id: 'Coffee', label: '☕ Coffee' },
   { id: 'Non Coffee', label: '🧃 Non Coffee' },
-  { id: 'Food',       label: '🍱 Food' },
-  { id: 'Dessert',    label: '🍰 Dessert' },
+  { id: 'Food', label: '🍱 Food' },
+  { id: 'Dessert', label: '🍰 Dessert' },
 ]
 
 export function MenuClient({ products, storeName }: MenuClientProps) {
   const router = useRouter()
   const [activeCategory, setActiveCategory] = useState('Coffee')
-  const [queueInput, setQueueInput]         = useState('')
-  const [search, setSearch]                 = useState('')
-  const [queueError, setQueueError]         = useState('')
-  const [queueChecking, setQueueChecking]   = useState(false)
+  const [queueInput, setQueueInput] = useState('')
+  const [search, setSearch] = useState('')
+  const [queueError, setQueueError] = useState('')
+  const [queueChecking, setQueueChecking] = useState(false)
 
   const filtered = products.filter((p) => {
     const matchCategory = p.category === activeCategory
@@ -48,7 +48,7 @@ export function MenuClient({ products, storeName }: MenuClientProps) {
     setQueueError('')
 
     try {
-      const res  = await fetch(`/api/status?queue=${encodeURIComponent(q)}`)
+      const res = await fetch(`/api/status?queue=${encodeURIComponent(q)}`)
       const data = await res.json()
 
       if (!res.ok || !data.order) {
@@ -96,14 +96,13 @@ export function MenuClient({ products, storeName }: MenuClientProps) {
             <Receipt className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
             <input
               type="text"
-              placeholder="Cek status pesanan, cth: A-001"
+              placeholder="Cek status pesanan, 1"
               value={queueInput}
               onChange={(e) => { setQueueInput(e.target.value.toUpperCase()); setQueueError('') }}
               onKeyDown={(e) => e.key === 'Enter' && handleCek()}
               maxLength={10}
-              className={`w-full pl-10 pr-4 h-12 rounded-xl border bg-white text-sm font-mono font-semibold tracking-widest placeholder:font-normal placeholder:tracking-normal placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent transition-all uppercase shadow-sm ${
-                queueError ? 'border-red-300' : 'border-gray-200'
-              }`}
+              className={`w-full pl-10 pr-4 h-12 rounded-xl border bg-white text-sm font-mono font-semibold tracking-widest placeholder:font-normal placeholder:tracking-normal placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent transition-all uppercase shadow-sm ${queueError ? 'border-red-300' : 'border-gray-200'
+                }`}
             />
           </div>
           <button

@@ -185,7 +185,7 @@ export function CekStatusModal({ open, onClose }: Props) {
               <input
                 ref={inputRef}
                 type="text"
-                placeholder="Contoh: A-001"
+                placeholder="Contoh: 1"
                 value={input}
                 onChange={(e) => {
                   setInput(e.target.value.toUpperCase())

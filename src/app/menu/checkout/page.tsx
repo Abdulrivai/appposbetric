@@ -21,6 +21,7 @@ export default function CheckoutPage() {
 
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('qris')
   const [loading, setLoading] = useState(false)
+  const [tableError, setTableError] = useState(false)
   const [storeName, setStoreName] = useState('Toko Kami')
   const [orderResult, setOrderResult] = useState<{
     orderId: string
@@ -64,6 +65,7 @@ export default function CheckoutPage() {
 
   async function handleCheckout() {
     if (orderType === 'dine_in' && !tableNumber.trim()) {
+      setTableError(true)
       toast.error('Masukkan nomor meja terlebih dahulu')
       return
     }
@@ -219,7 +221,7 @@ export default function CheckoutPage() {
               {(['dine_in', 'take_away'] as const).map((type) => (
                 <button
                   key={type}
-                  onClick={() => setOrderType(type)}
+                  onClick={() => { setOrderType(type); setTableError(false) }}
                   className={`rounded-xl border-2 p-4 text-sm font-medium transition-all flex flex-col items-center gap-1.5 ${
                     orderType === type
                       ? 'border-gray-900 bg-gray-900 text-white'
@@ -234,14 +236,25 @@ export default function CheckoutPage() {
 
             {orderType === 'dine_in' && (
               <div className="space-y-1.5">
-                <Label htmlFor="tableNumber" className="text-sm font-medium text-gray-700">Nomor Meja</Label>
+                <Label htmlFor="tableNumber" className={`text-sm font-medium ${tableError ? 'text-red-600' : 'text-gray-700'}`}>
+                  Nomor Meja <span className="text-red-500">*</span>
+                </Label>
                 <Input
                   id="tableNumber"
                   placeholder="Contoh: 5 atau A3"
                   value={tableNumber}
-                  onChange={(e) => setTableNumber(e.target.value)}
-                  className="h-11 rounded-xl"
+                  onChange={(e) => {
+                    setTableNumber(e.target.value)
+                    if (e.target.value.trim()) setTableError(false)
+                  }}
+                  className={`h-11 rounded-xl transition-colors ${tableError ? 'border-red-400 focus-visible:ring-red-400 bg-red-50' : ''}`}
                 />
+                {tableError && (
+                  <p className="flex items-center gap-1.5 text-sm text-red-600 font-medium">
+                    <span>⚠️</span>
+                    Nomor meja wajib diisi sebelum checkout
+                  </p>
+                )}
               </div>
             )}
           </div>
