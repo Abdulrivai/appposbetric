@@ -18,40 +18,40 @@ async function getDailyReport() {
     .select('id, order_code, queue_number, order_type, table_number, items, total_amount, payment_method, status, cashier_id, paid_at, created_at')
     .gte('created_at', start)
     .lt('created_at', end)
-    .eq('status', 'paid')
     .order('created_at', { ascending: false })
 
-  const list = (orders as Order[]) ?? []
-  const total     = list.reduce((s, o) => s + o.total_amount, 0)
-  const qrisTotal = list.filter((o) => o.payment_method === 'qris').reduce((s, o) => s + o.total_amount, 0)
-  const cashTotal = list.filter((o) => o.payment_method === 'cash').reduce((s, o) => s + o.total_amount, 0)
+  const list    = (orders as Order[]) ?? []
+  const paid    = list.filter((o) => o.status === 'paid' || o.status === 'done')
+  const total     = paid.reduce((s, o) => s + o.total_amount, 0)
+  const qrisTotal = paid.filter((o) => o.payment_method === 'qris').reduce((s, o) => s + o.total_amount, 0)
+  const cashTotal = paid.filter((o) => o.payment_method === 'cash').reduce((s, o) => s + o.total_amount, 0)
 
-  return { orders: list, total, qrisTotal, cashTotal }
+  return { orders: list, paid, total, qrisTotal, cashTotal }
 }
 
 export default async function LaporanAdminPage() {
-  const { orders, total, qrisTotal, cashTotal } = await getDailyReport()
+  const { orders, paid, total, qrisTotal, cashTotal } = await getDailyReport()
 
   return (
     <div className="space-y-6">
       <PageHeader title="Laporan Harian" description="Transaksi berhasil hari ini" />
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatsCard title="Total Transaksi" value={orders.length} icon={ShoppingBag} />
+        <StatsCard title="Transaksi Berhasil" value={paid.length} icon={ShoppingBag} />
         <StatsCard title="Total Pendapatan" value={total} isRupiah icon={TrendingUp} />
         <StatsCard
           title="Via QRIS"
           value={qrisTotal}
           isRupiah
           icon={CreditCard}
-          description={`${orders.filter((o) => o.payment_method === 'qris').length} transaksi`}
+          description={`${paid.filter((o) => o.payment_method === 'qris').length} transaksi`}
         />
         <StatsCard
           title="Via Tunai"
           value={cashTotal}
           isRupiah
           icon={Wallet}
-          description={`${orders.filter((o) => o.payment_method === 'cash').length} transaksi`}
+          description={`${paid.filter((o) => o.payment_method === 'cash').length} transaksi`}
         />
       </div>
 
@@ -70,6 +70,7 @@ export default async function LaporanAdminPage() {
               <Table>
                 <TableHeader>
                   <TableRow>
+                    <TableHead className="w-12">No.</TableHead>
                     <TableHead>Kode Order</TableHead>
                     <TableHead>Waktu</TableHead>
                     <TableHead>Tipe</TableHead>
@@ -81,6 +82,11 @@ export default async function LaporanAdminPage() {
                 <TableBody>
                   {orders.map((order) => (
                     <TableRow key={order.id}>
+                      <TableCell>
+                        <span className="inline-flex h-7 w-7 items-center justify-center rounded-lg bg-gray-900 font-mono text-xs font-black text-white">
+                          {order.queue_number ?? '—'}
+                        </span>
+                      </TableCell>
                       <TableCell className="font-mono text-sm font-semibold">{order.order_code}</TableCell>
                       <TableCell className="text-sm text-muted-foreground">{formatDateTime(order.created_at)}</TableCell>
                       <TableCell>

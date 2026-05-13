@@ -208,6 +208,7 @@ export default function TransaksiPage() {
             <Table>
               <TableHeader>
                 <TableRow className="bg-gray-50/80 hover:bg-gray-50/80">
+                  <TableHead className="text-xs font-semibold text-gray-500 uppercase tracking-wide w-12">No.</TableHead>
                   <TableHead className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Kode Order</TableHead>
                   <TableHead className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Waktu</TableHead>
                   <TableHead className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Tipe</TableHead>
@@ -232,6 +233,11 @@ export default function TransaksiPage() {
                 ) : (
                   orders.map((order) => (
                     <TableRow key={order.id} className="hover:bg-gray-50/50 transition-colors">
+                      <TableCell>
+                        <span className="inline-flex h-7 w-7 items-center justify-center rounded-lg bg-gray-900 font-mono text-xs font-black text-white">
+                          {order.queue_number ?? '—'}
+                        </span>
+                      </TableCell>
                       <TableCell className="font-mono text-sm font-semibold">{order.order_code}</TableCell>
                       <TableCell className="text-sm text-muted-foreground">{formatDateTime(order.created_at)}</TableCell>
                       <TableCell>
@@ -290,6 +296,12 @@ export default function TransaksiPage() {
           </DialogHeader>
           {selectedOrder && (
             <div className="space-y-4">
+              <div className="flex items-center gap-3 p-3 rounded-xl bg-gray-50 border border-gray-100">
+                <span className="text-xs text-gray-400 font-medium">No. Antrian</span>
+                <span className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-gray-900 font-mono text-base font-black text-white">
+                  {selectedOrder.queue_number ?? '—'}
+                </span>
+              </div>
               <div className="grid grid-cols-2 gap-3 text-sm">
                 <div><span className="text-muted-foreground">Waktu:</span> <span className="font-medium">{formatDateTime(selectedOrder.created_at)}</span></div>
                 <div><span className="text-muted-foreground">Tipe:</span> <span className="font-medium">{selectedOrder.order_type === 'dine_in' ? `Dine In - Meja ${selectedOrder.table_number}` : 'Take Away'}</span></div>
