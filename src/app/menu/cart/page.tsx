@@ -18,7 +18,7 @@ export default function CartPage() {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center gap-5 bg-gray-50 p-4">
         <Image
-          src="/keranjangkosong.png"
+          src="/keranjangkosongnew.png"
           alt="Keranjang masih kosong"
           width={200}
           height={200}
