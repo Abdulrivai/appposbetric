@@ -42,6 +42,25 @@ export default function CheckoutPage() {
 
   const totalPrice = getTotalPrice()
 
+  const handleQrisSuccess = useCallback(() => {
+    if (!orderResult) return
+    setSuccessData({
+      storeName,
+      orderCode: orderResult.orderCode,
+      queueNumber: orderResult.queueNumber,
+      items: items.map(i => ({ name: i.name, qty: i.qty, price: i.price })),
+      total: totalPrice,
+      paymentMethod: 'qris',
+      orderType,
+      tableNumber: tableNumber || undefined,
+      createdAt: new Date().toISOString(),
+    })
+    clearCart()
+    setShowSuccess(true)
+    setOrderResult(null)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [orderResult?.orderId])
+
   if (items.length === 0 && !showSuccess) {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center gap-5 bg-gray-50 p-4">
@@ -317,23 +336,7 @@ export default function CheckoutPage() {
           orderCode={orderResult.orderCode}
           qrUrl={orderResult.qrUrl ?? ''}
           midtransOrderId={orderResult.midtransOrderId ?? ''}
-          onSuccess={useCallback(() => {
-            setSuccessData({
-              storeName,
-              orderCode: orderResult.orderCode,
-              queueNumber: orderResult.queueNumber,
-              items: items.map(i => ({ name: i.name, qty: i.qty, price: i.price })),
-              total: totalPrice,
-              paymentMethod: 'qris',
-              orderType,
-              tableNumber: tableNumber || undefined,
-              createdAt: new Date().toISOString(),
-            })
-            clearCart()
-            setShowSuccess(true)
-            setOrderResult(null)
-          // eslint-disable-next-line react-hooks/exhaustive-deps
-          }, [orderResult?.orderId])}
+          onSuccess={handleQrisSuccess}
           onCancel={() => setOrderResult(null)}
         />
       )}

@@ -53,8 +53,10 @@ function StatusContent() {
     if (!q) { router.replace('/menu'); return }
     fetchOrder(q)
     return () => {
-      if (channelRef.current) {
-        supabaseRef.current.removeChannel(channelRef.current)
+      const supabase = supabaseRef.current
+      const channel  = channelRef.current
+      if (channel) {
+        supabase.removeChannel(channel)
         channelRef.current = null
       }
     }

@@ -76,13 +76,13 @@ export function OrderQueue() {
       .on('postgres_changes', { event: '*', schema: 'public', table: 'orders' }, () => fetchOrders(true))
       .subscribe()
 
-    // Auto-expire check every 60s even without realtime events
     const interval = setInterval(() => fetchOrders(true), 60 * 1000)
 
     return () => {
       supabase.removeChannel(channel)
       clearInterval(interval)
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   function getFiltered(tab: typeof TABS[number]) {
