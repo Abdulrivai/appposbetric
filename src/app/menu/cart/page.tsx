@@ -2,9 +2,10 @@
 
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import Image from 'next/image'
 import { useCartStore } from '@/lib/store'
 import { formatRupiah } from '@/lib/utils'
-import { ShoppingCart, ArrowLeft, Minus, Plus, Trash2, ArrowRight, ShoppingBag } from 'lucide-react'
+import { ShoppingCart, ArrowLeft, Minus, Plus, Trash2, ArrowRight } from 'lucide-react'
 
 export default function CartPage() {
   const router = useRouter()
@@ -16,9 +17,13 @@ export default function CartPage() {
   if (items.length === 0) {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center gap-5 bg-gray-50 p-4">
-        <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-gray-100">
-          <ShoppingBag className="h-10 w-10 text-gray-400" />
-        </div>
+        <Image
+          src="/keranjangkosong.png"
+          alt="Keranjang masih kosong"
+          width={200}
+          height={200}
+          className="object-contain"
+        />
         <div className="text-center">
           <p className="font-semibold text-gray-800">Keranjang masih kosong</p>
           <p className="text-sm text-gray-400 mt-1">Yuk, tambahkan menu dulu!</p>
