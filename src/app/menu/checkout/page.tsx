@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useCartStore } from '@/lib/store'
 import { formatRupiah } from '@/lib/utils'
@@ -317,7 +317,7 @@ export default function CheckoutPage() {
           orderCode={orderResult.orderCode}
           qrUrl={orderResult.qrUrl ?? ''}
           midtransOrderId={orderResult.midtransOrderId ?? ''}
-          onSuccess={() => {
+          onSuccess={useCallback(() => {
             setSuccessData({
               storeName,
               orderCode: orderResult.orderCode,
@@ -332,7 +332,8 @@ export default function CheckoutPage() {
             clearCart()
             setShowSuccess(true)
             setOrderResult(null)
-          }}
+          // eslint-disable-next-line react-hooks/exhaustive-deps
+          }, [orderResult?.orderId])}
           onCancel={() => setOrderResult(null)}
         />
       )}

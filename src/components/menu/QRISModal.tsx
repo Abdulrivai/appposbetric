@@ -64,11 +64,17 @@ export function QRISModal({ open, orderId, orderCode, qrUrl, midtransOrderId, on
       try {
         const res  = await fetch(`/api/midtrans/status?order_id=${midtransOrderId}`)
         const data = await res.json()
-        if (data.status === 'paid' && !successRef.current) {
+        const isPaid = data.status === 'paid' ||
+          data.transaction_status === 'settlement' ||
+          data.transaction_status === 'capture'
+        const isFailed = data.status === 'failed' || data.status === 'expired' ||
+          data.transaction_status === 'expire' || data.transaction_status === 'expired' ||
+          ['cancel', 'deny', 'failure'].includes(data.transaction_status ?? '')
+        if (isPaid && !successRef.current) {
           successRef.current = true
           setStatus('success')
           setTimeout(onSuccess, 2000)
-        } else if (data.status === 'expired' || data.status === 'failed') {
+        } else if (isFailed) {
           setStatus('failed')
         }
       } catch { /* abaikan */ }
@@ -87,7 +93,8 @@ export function QRISModal({ open, orderId, orderCode, qrUrl, midtransOrderId, on
       clearInterval(poll)
       clearInterval(timer)
     }
-  }, [open, orderId, midtransOrderId, onSuccess])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, orderId, midtransOrderId])
 
   function downloadQR() {
     const canvas = canvasRef.current

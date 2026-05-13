@@ -8,13 +8,20 @@ async function generateQueueNumber(supabase: ReturnType<typeof createServiceRole
   const today = new Date()
   today.setHours(0, 0, 0, 0)
 
-  const { count } = await supabase
+  // Ambil semua queue_number hari ini lalu cari MAX secara numerik.
+  // Pakai MAX bukan COUNT supaya penghapusan order expired tidak menyebabkan
+  // nomor antrian yang sama diterbitkan ulang.
+  const { data } = await supabase
     .from('orders')
-    .select('*', { count: 'exact', head: true })
+    .select('queue_number')
     .gte('created_at', today.toISOString())
 
-  const seq = (count ?? 0) + 1
-  return String(seq)
+  const max = (data ?? []).reduce((m, o) => {
+    const n = parseInt(o.queue_number ?? '0', 10)
+    return n > m ? n : m
+  }, 0)
+
+  return String(max + 1)
 }
 
 export async function POST(request: NextRequest) {
