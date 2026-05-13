@@ -21,19 +21,17 @@ interface QRISModalProps {
 export function QRISModal({ open, orderId, orderCode, qrUrl, midtransOrderId, onSuccess, onCancel }: QRISModalProps) {
   const [status, setStatus]               = useState<'waiting' | 'success' | 'failed'>('waiting')
   const [timeLeft, setTimeLeft]           = useState(600)
-  const [successCountdown, setSuccessCountdown] = useState(20)
   const [confirmCancel, setConfirmCancel] = useState(false)
   const [cancelling, setCancelling]       = useState(false)
 
-  const successRef  = useRef(false)
-  const canvasRef   = useRef<HTMLCanvasElement>(null)
+  const successRef = useRef(false)
+  const canvasRef  = useRef<HTMLCanvasElement>(null)
 
   // Reset state setiap modal buka/tutup
   useEffect(() => {
     if (!open) {
       setStatus('waiting')
       setTimeLeft(600)
-      setSuccessCountdown(20)
       setConfirmCancel(false)
       successRef.current = false
       return
@@ -51,6 +49,8 @@ export function QRISModal({ open, orderId, orderCode, qrUrl, midtransOrderId, on
           if ((s === 'paid' || s === 'done') && !successRef.current) {
             successRef.current = true
             setStatus('success')
+            // Langsung pindah setelah animasi singkat selesai (2 detik)
+            setTimeout(onSuccess, 2000)
           } else if (s === 'expired' || s === 'failed') {
             setStatus('failed')
           }
@@ -67,6 +67,7 @@ export function QRISModal({ open, orderId, orderCode, qrUrl, midtransOrderId, on
         if (data.status === 'paid' && !successRef.current) {
           successRef.current = true
           setStatus('success')
+          setTimeout(onSuccess, 2000)
         } else if (data.status === 'expired' || data.status === 'failed') {
           setStatus('failed')
         }
@@ -86,26 +87,7 @@ export function QRISModal({ open, orderId, orderCode, qrUrl, midtransOrderId, on
       clearInterval(poll)
       clearInterval(timer)
     }
-  }, [open, orderId, midtransOrderId])
-
-  // Countdown 20 detik setelah pembayaran terdeteksi
-  useEffect(() => {
-    if (status !== 'success') return
-    if (successCountdown <= 0) { onSuccess(); return }
-    const t = setInterval(() => {
-      setSuccessCountdown((prev) => {
-        if (prev <= 1) { clearInterval(t); return 0 }
-        return prev - 1
-      })
-    }, 1000)
-    return () => clearInterval(t)
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [status])
-
-  useEffect(() => {
-    if (successCountdown === 0 && status === 'success') onSuccess()
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [successCountdown, status])
+  }, [open, orderId, midtransOrderId, onSuccess])
 
   function downloadQR() {
     const canvas = canvasRef.current
@@ -247,34 +229,62 @@ export function QRISModal({ open, orderId, orderCode, qrUrl, midtransOrderId, on
 
           {/* ── Pembayaran berhasil ─────────────────────────────────── */}
           {status === 'success' && (
-            <div className="flex flex-col items-center gap-4 py-4 w-full">
-              <div className="flex h-20 w-20 items-center justify-center rounded-full bg-gray-900">
-                <CheckCircle2 className="h-10 w-10 text-white" />
-              </div>
-              <div className="text-center">
-                <p className="text-xl font-black text-gray-900">Pembayaran Berhasil!</p>
-                <p className="text-sm text-gray-400 mt-1">Pesananmu sedang diproses</p>
+            <div className="flex flex-col items-center gap-4 py-2 w-full">
+
+              {/* Icon sukses dengan animasi scale-in */}
+              <div
+                className="relative flex h-24 w-24 items-center justify-center rounded-full bg-gray-900"
+                style={{ animation: 'scale-in 0.5s cubic-bezier(0.34,1.56,0.64,1) forwards' }}
+              >
+                {/* Ripple ring */}
+                <div className="absolute inset-0 rounded-full bg-gray-900 opacity-20 animate-ping" />
+                <CheckCircle2 className="h-12 w-12 text-white" />
               </div>
 
-              {/* Peringatan jangan tutup + countdown */}
-              <div className="w-full flex items-start gap-2.5 rounded-xl bg-amber-50 border border-amber-200 px-4 py-3">
+              {/* Teks sukses dengan fade-up */}
+              <div
+                className="text-center space-y-1"
+                style={{ animation: 'fade-up 0.4s ease 0.3s both' }}
+              >
+                <p className="text-2xl font-black text-gray-900">Pembayaran Berhasil!</p>
+                <p className="text-sm text-gray-400">Pesananmu dikonfirmasi ✓</p>
+              </div>
+
+              {/* Banner jangan tutup */}
+              <div
+                className="w-full flex items-start gap-2.5 rounded-xl bg-amber-50 border border-amber-200 px-4 py-3"
+                style={{ animation: 'fade-up 0.4s ease 0.5s both' }}
+              >
                 <AlertTriangle className="h-4 w-4 text-amber-500 shrink-0 mt-0.5" />
                 <div className="text-xs text-amber-700 font-medium leading-snug">
                   <p><strong>Jangan tutup halaman ini!</strong></p>
-                  <p className="mt-0.5">
-                    Menampilkan nomor antrian dalam{' '}
-                    <strong className="text-amber-900">{successCountdown} detik</strong>...
-                  </p>
+                  <p className="mt-0.5">Sedang menyiapkan nomor antrian kamu...</p>
                 </div>
               </div>
 
-              {/* Progress bar countdown */}
-              <div className="w-full h-1.5 rounded-full bg-gray-100 overflow-hidden">
+              {/* Loading bar dengan shimmer */}
+              <div
+                className="w-full h-2 rounded-full bg-gray-100 overflow-hidden"
+                style={{ animation: 'fade-up 0.4s ease 0.6s both' }}
+              >
                 <div
-                  className="h-full bg-gray-900 rounded-full transition-all duration-1000"
-                  style={{ width: `${((20 - successCountdown) / 20) * 100}%` }}
-                />
+                  className="relative h-full rounded-full bg-gray-900 overflow-hidden"
+                  style={{ animation: 'progress-fill 2s ease-in-out forwards' }}
+                >
+                  {/* Shimmer overlay */}
+                  <div
+                    className="absolute inset-y-0 w-1/4 bg-gradient-to-r from-transparent via-white/40 to-transparent"
+                    style={{ animation: 'shimmer 1.2s ease-in-out infinite' }}
+                  />
+                </div>
               </div>
+
+              <p
+                className="text-xs text-gray-400"
+                style={{ animation: 'fade-up 0.4s ease 0.7s both' }}
+              >
+                Mohon tunggu sebentar...
+              </p>
             </div>
           )}
 
